@@ -1,14 +1,10 @@
+// npx hardhat run scripts/deploy.js --network rinkeby
+
 const main = async () => {
-  const [deployer] = await hre.ethers.getSigners();
-  const accountBalance = await deployer.getBalance();
-
-  console.log('Deploying contracts with account: ', deployer.address);
-  console.log('Account balance: ', accountBalance.toString());
-
-  const Token = await hre.ethers.getContractFactory('WavePortal');
-  const portal = await Token.deploy();
-
-  console.log('WavePortal address: ', portal.address);
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+  await waveContract.deployed();
+  console.log('Contract address:', waveContract.address);
 };
 
 const runMain = async () => {
@@ -16,7 +12,7 @@ const runMain = async () => {
     await main();
     process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.log(error);
     process.exit(1);
   }
 };
