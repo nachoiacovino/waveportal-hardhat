@@ -33,37 +33,44 @@ contract WavePortal {
      */
     Wave[] waves;
 
+    /*
+     * This is an address => uint mapping, meaning I can associate an address with a number!
+     * In this case, I'll be storing the address with the last time the user waved at us.
+     */
+    mapping(address => uint256) public lastWavedAt;
+
     constructor() payable {
         console.log("I AM SMART CONTRACT. POG.");
     }
 
     function wave(string memory _message) public {
+        /*
+         * We need to make sure the current timestamp is at least 15-minutes bigger than the last timestamp we stored
+         */
+        require(
+            lastWavedAt[msg.sender] + 15 minutes < block.timestamp,
+            "Wait 15m"
+        );
+
+        /*
+         * Update the current timestamp we have for the user
+         */
+        lastWavedAt[msg.sender] = block.timestamp;
+
         totalWaves += 1;
         console.log("%s has waved!", msg.sender);
 
         waves.push(Wave(msg.sender, _message, block.timestamp));
 
-        /*
-         * Generate a Psuedo random number between 0 and 100
-         */
         uint256 randomNumber = (block.difficulty + block.timestamp + seed) %
             100;
         console.log("Random # generated: %s", randomNumber);
 
-        /*
-         * Set the generated, random number as the seed for the next wave
-         */
         seed = randomNumber;
 
-        /*
-         * Give a 50% chance that the user wins the prize.
-         */
         if (randomNumber < 50) {
             console.log("%s won!", msg.sender);
 
-            /*
-             * The same code we had before to send the prize.
-             */
             uint256 prizeAmount = 0.0001 ether;
             require(
                 prizeAmount <= address(this).balance,
